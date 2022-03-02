@@ -78,8 +78,17 @@ public class Robot extends TimedRobot {
 
     btn_driveFB = xbox_drive.getRawAxis(5);
     btn_driveSpin = xbox_drive.getRawAxis(1);
-
     btn_winch = xbox_util.getPOV();
+
+    while(btn_winch == 0 || btn_winch == 315 || btn_winch == 45){
+      cont_winch.set(0.8);
+    }
+
+    while(btn_winch == 180 || btn_winch == 135 || btn_winch == 225){
+      cont_winch.set(-0.8);
+    }
+
+    cont_winch.set(0);
 
     drive.arcadeDrive(0.8*btn_driveFB, 0.8*btn_driveSpin);
   }
