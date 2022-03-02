@@ -4,7 +4,14 @@
 
 package frc.robot;
 
+import com.ctre.phoenix.motorcontrol.can.WPI_TalonSRX;
+import com.revrobotics.CANSparkMax;
+import com.revrobotics.CANSparkMaxLowLevel.MotorType;
+
 import edu.wpi.first.wpilibj.TimedRobot;
+import edu.wpi.first.wpilibj.XboxController;
+import edu.wpi.first.wpilibj.drive.DifferentialDrive;
+
 
 /**
  * The VM is configured to automatically run this class, and to call the functions corresponding to
@@ -14,6 +21,27 @@ import edu.wpi.first.wpilibj.TimedRobot;
  */
 public class Robot extends TimedRobot {
 
+  //Motor Controllers
+  CANSparkMax cont_driveL = new CANSparkMax(11, MotorType.kBrushed);
+  CANSparkMax cont_driveR = new CANSparkMax(12, MotorType.kBrushed);
+  WPI_TalonSRX cont_shoulder = new WPI_TalonSRX(13);
+  WPI_TalonSRX cont_elbowL = new WPI_TalonSRX(14);
+  WPI_TalonSRX cont_elbowR = new WPI_TalonSRX(15);
+  WPI_TalonSRX cont_winch = new WPI_TalonSRX(16);
+
+  //drivetrain
+  DifferentialDrive drive = new DifferentialDrive(cont_driveL, cont_driveR);
+
+  //Inputs
+  XboxController xbox_drive = new XboxController(0);
+  XboxController xbox_util = new XboxController(1);
+
+  //buttons
+  Double btn_driveFB;
+  Double btn_driveSpin;
+  int btn_winch;
+  Double btn_shoulderOut;
+  Double btn_ShoulderIn;
 
   /**
    * This function is run when the robot is first started up and should be used for any
@@ -45,7 +73,15 @@ public class Robot extends TimedRobot {
 
   /** This function is called periodically during operator control. */
   @Override
-  public void teleopPeriodic() {}
+  public void teleopPeriodic() {
+
+    btn_driveFB = xbox_drive.getRawAxis(5);
+    btn_driveSpin = xbox_drive.getRawAxis(1);
+
+    btn_winch = xbox_util.getPOV();
+
+    drive.arcadeDrive(0.8*btn_driveFB, 0.8*btn_driveSpin);
+  }
 
   /** This function is called once when the robot is disabled. */
   @Override
