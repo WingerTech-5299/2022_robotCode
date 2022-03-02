@@ -88,9 +88,7 @@ public class Robot extends TimedRobot {
       cont_winch.set(-0.8);
     }
     cont_winch.set(0);
-
     
-
     drive.arcadeDrive(0.8*btn_driveFB, 0.8*btn_driveSpin);
   }
 
