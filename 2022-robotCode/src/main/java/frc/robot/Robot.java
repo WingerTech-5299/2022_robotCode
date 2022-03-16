@@ -5,8 +5,7 @@
 package frc.robot;
 
 import com.ctre.phoenix.motorcontrol.can.WPI_TalonSRX;
-import com.revrobotics.CANSparkMax;
-import com.revrobotics.CANSparkMaxLowLevel.MotorType;
+import com.ctre.phoenix.motorcontrol.can.WPI_VictorSPX;
 
 import edu.wpi.first.wpilibj.TimedRobot;
 import edu.wpi.first.wpilibj.XboxController;
@@ -22,8 +21,8 @@ import edu.wpi.first.wpilibj.drive.DifferentialDrive;
 public class Robot extends TimedRobot {
 
   //Motor Controllers 
-  CANSparkMax cont_driveL = new CANSparkMax(11, MotorType.kBrushed);
-  CANSparkMax cont_driveR = new CANSparkMax(12, MotorType.kBrushed);
+  WPI_VictorSPX cont_driveL = new WPI_VictorSPX(11);
+  WPI_VictorSPX cont_driveR = new WPI_VictorSPX(12);
   WPI_TalonSRX cont_shoulder = new WPI_TalonSRX(13);
   WPI_TalonSRX cont_elbowL = new WPI_TalonSRX(14);
   WPI_TalonSRX cont_elbowR = new WPI_TalonSRX(15);
@@ -42,14 +41,12 @@ public class Robot extends TimedRobot {
   Boolean btn_driveTurbo;
   int btn_winch;
 
-  Double btn_shoulderOut;
-  Double btn_ShoulderIn;
+  Double btn_shoulders;
   Boolean btn_ElbowLOut;
   Boolean btn_ElbowROut;
   Double btn_Elbows;
   Double btn_EblowLIn;
   Double btn_ElbowRIn;
-
   /**
    * This function is run when the robot is first started up and should be used for any
    * initialization code.
@@ -82,55 +79,58 @@ public class Robot extends TimedRobot {
   @Override
   public void teleopPeriodic() {
 
-    double turboModifier = 0.5;
-    int ifEblowBackwards = 1;
+    //double turboModifier = 0.5;
 
-    if (btn_driveTurbo){
-      turboModifier = 1.0;
-    } else {
-      turboModifier = 0.5;
-    }
+    // if (btn_driveTurbo){
+    //   turboModifier = 1.0;
+    // } else {
+    //   turboModifier = 0.5;
+    // }
+ 
+    
+    btn_driveFB = xbox_drive.getRawAxis(1);
+    btn_driveSpin = xbox_drive.getRawAxis(4);
 
-    btn_driveFB = xbox_drive.getRawAxis(5);
-    btn_driveSpin = xbox_drive.getRawAxis(1);
+    btn_EblowLIn = xbox_util.getRawAxis(2);
+    btn_ElbowRIn = xbox_util.getRawAxis(3);
 
-    btn_winch = xbox_util.getPOV();
-    btn_EblowLIn = xbox_util.getRawAxis(5);
-    btn_ElbowRIn = xbox_util.getRawAxis(6);
     btn_ElbowLOut = xbox_util.getRawButton(5);
     btn_ElbowROut = xbox_util.getRawButton(6);
+
     btn_Elbows = xbox_util.getRawAxis(1);
 
+    btn_shoulders = xbox_util.getRawAxis(1);
 
-    while (btn_ElbowLOut) {
-      cont_elbowL.set(0.5*ifEblowBackwards);
-    } 
+    cont_shoulder.set(-0.5*btn_shoulders);
+
+    if (btn_ElbowLOut) {
+      cont_elbowL.set(-0.3);
+    } else {
       cont_elbowL.set(0);
-
-    while (btn_ElbowROut) {
-      cont_elbowR.set(-0.5*ifEblowBackwards);
     }
+
+    if (btn_ElbowROut) {
+      cont_elbowR.set(-0.3);
+    } else {
       cont_elbowR.set(0);
-
-    cont_elbowR.set(btn_ElbowRIn*-0.5*ifEblowBackwards);
-    cont_elbowL.set(btn_EblowLIn*0.5*ifEblowBackwards);
-
-    if (btn_EblowLIn == 0 && btn_ElbowRIn == 0 && btn_ElbowLOut == false && btn_ElbowROut == false){
-
-      elbows(btn_Elbows);
-
     }
 
-    while(btn_winch == 0 || btn_winch == 315 || btn_winch == 45){
-      cont_winch.set(0.8);
+    if (btn_ElbowRIn > 0.05){
+      cont_elbowR.set(btn_ElbowRIn);
+
+    }
+    if (btn_EblowLIn > 0.05){
+      cont_elbowL.set(btn_EblowLIn);
     }
 
-    while(btn_winch == 180 || btn_winch == 135 || btn_winch == 225){
-      cont_winch.set(-0.8);
-    }
-    cont_winch.set(0);
+    // if (btn_EblowLIn == 0 && btn_ElbowRIn == 0 && !btn_ElbowLOut && !btn_ElbowROut){
+      
+    //   cont_elbowL.set(btn_Elbows*0.5);
+    //   cont_elbowR.set(btn_Elbows*-0.5);
+
+    // }
     
-    drive.arcadeDrive(turboModifier*btn_driveFB, 0.8*btn_driveSpin);
+    drive.arcadeDrive(0.8*btn_driveFB, 0.8*btn_driveSpin);
   }
 
   /** This function is called once when the robot is disabled. */
@@ -148,10 +148,4 @@ public class Robot extends TimedRobot {
   /** This function is called periodically during test mode. */
   @Override
   public void testPeriodic() {}
-  
-  private void elbows (Double btnInput){
-
-    cont_elbowL.set(btnInput*0.5);
-    cont_elbowR.set(btnInput*-0.5);
-}
 }
