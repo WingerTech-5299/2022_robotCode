@@ -7,6 +7,7 @@ package frc.robot;
 import com.ctre.phoenix.motorcontrol.can.WPI_TalonSRX;
 import com.ctre.phoenix.motorcontrol.can.WPI_VictorSPX;
 
+import edu.wpi.first.wpilibj.DigitalInput;
 import edu.wpi.first.wpilibj.TimedRobot;
 import edu.wpi.first.wpilibj.XboxController;
 import edu.wpi.first.wpilibj.drive.DifferentialDrive;
@@ -47,6 +48,12 @@ public class Robot extends TimedRobot {
   Double btn_Elbows;
   Double btn_EblowLIn;
   Double btn_ElbowRIn;
+
+  //Sensors
+  Boolean sensor_Shoulder = new DigitalInput(0).get();
+  Boolean sensor_ElbowL = new DigitalInput(1).get();
+  Boolean sensor_ElbowR = new DigitalInput(2).get();
+
   /**
    * This function is run when the robot is first started up and should be used for any
    * initialization code.
