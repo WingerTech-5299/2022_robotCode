@@ -37,11 +37,6 @@ public class Robot extends TimedRobot {
   XboxController xbox_util = new XboxController(1);
 
   //buttons
-  Double btn_driveFB;
-  Double btn_driveSpin;
-  Boolean btn_driveTurbo;
-  int btn_winch;
-
   Double btn_shoulders;
   Boolean btn_ElbowLOut;
   Boolean btn_ElbowROut;
@@ -50,9 +45,9 @@ public class Robot extends TimedRobot {
   Double btn_ElbowRIn;
 
   //Sensors
-  Boolean sensor_Shoulder = new DigitalInput(0).get();
-  Boolean sensor_ElbowL = new DigitalInput(1).get();
-  Boolean sensor_ElbowR = new DigitalInput(2).get();
+  DigitalInput sensor_shoudler = new DigitalInput(0);
+  DigitalInput sensor_elbowL = new DigitalInput(1);
+  DigitalInput sensor_elbowR = new DigitalInput(2);
 
   /**
    * This function is run when the robot is first started up and should be used for any
@@ -86,18 +81,8 @@ public class Robot extends TimedRobot {
   @Override
   public void teleopPeriodic() {
 
-    //double turboModifier = 0.5;
-
-    // if (btn_driveTurbo){
-    //   turboModifier = 1.0;
-    // } else {
-    //   turboModifier = 0.5;
-    // }
  
-    
-    btn_driveFB = xbox_drive.getRawAxis(1);
-    btn_driveSpin = xbox_drive.getRawAxis(4);
-
+    //Buttons
     btn_EblowLIn = xbox_util.getRawAxis(2);
     btn_ElbowRIn = xbox_util.getRawAxis(3);
 
@@ -108,36 +93,26 @@ public class Robot extends TimedRobot {
 
     btn_shoulders = xbox_util.getRawAxis(1);
 
-    cont_shoulder.set(-0.5*btn_shoulders);
-
-    if (btn_ElbowLOut) {
-      cont_elbowL.set(-0.3);
-    } else {
-      cont_elbowL.set(0);
-    }
-
-    if (btn_ElbowROut) {
-      cont_elbowR.set(-0.3);
-    } else {
-      cont_elbowR.set(0);
-    }
-
-    if (btn_ElbowRIn > 0.05){
-      cont_elbowR.set(btn_ElbowRIn);
-
-    }
-    if (btn_EblowLIn > 0.05){
-      cont_elbowL.set(btn_EblowLIn);
-    }
-
-    // if (btn_EblowLIn == 0 && btn_ElbowRIn == 0 && !btn_ElbowLOut && !btn_ElbowROut){
-      
-    //   cont_elbowL.set(btn_Elbows*0.5);
-    //   cont_elbowR.set(btn_Elbows*-0.5);
-
-    // }
+    String previousShoulder = "";
     
-    drive.arcadeDrive(0.8*btn_driveFB, 0.8*btn_driveSpin);
+    if (btn_shoulders > 0.05){
+      previousShoulder = "Up";
+    } else if (btn_shoulders < -0.05){
+      previousShoulder = "Down";
+    }
+
+    if (sensor_elbowL.get() || sensor_elbowR.get()){
+      if (previousShoulder.equals("Up")){
+
+
+
+      }else if (previousShoulder.equals("Down")){
+
+        
+
+      }
+    }
+    
   }
 
   /** This function is called once when the robot is disabled. */
