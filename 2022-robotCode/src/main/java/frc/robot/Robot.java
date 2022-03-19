@@ -37,6 +37,8 @@ public class Robot extends TimedRobot {
   XboxController xbox_util = new XboxController(1);
 
   //buttons
+  Double btn_driveFB;
+  Double btn_driveS;
   Double btn_shoulders;
   Boolean btn_ElbowLOut;
   Boolean btn_ElbowROut;
@@ -93,8 +95,21 @@ public class Robot extends TimedRobot {
 
     btn_shoulders = xbox_util.getRawAxis(1);
 
+    btn_driveFB = xbox_drive.getRawAxis(5);
+    btn_driveS = xbox_drive.getRawAxis(0);
+
     String previousShoulder = "";
     
+    
+
+ drive.arcadeDrive(btn_driveFB, btn_driveS);
+
+
+
+
+
+
+
     if (btn_shoulders > 0.05){
       previousShoulder = "Up";
     } else if (btn_shoulders < -0.05){
