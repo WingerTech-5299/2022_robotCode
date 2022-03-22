@@ -99,8 +99,6 @@ public class Robot extends TimedRobot {
 
     btn_driveFB = xbox_drive.getRawAxis(5);
     btn_driveS = xbox_drive.getRawAxis(0);
-
-    String previousShoulder = "";
     
     
 
