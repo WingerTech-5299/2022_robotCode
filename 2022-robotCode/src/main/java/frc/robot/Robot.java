@@ -56,7 +56,9 @@ public class Robot extends TimedRobot {
    * initialization code.
    */
   @Override
-  public void robotInit() {}
+  public void robotInit() {
+    cont_driveR.setInverted(true);
+  }
 
   /**
    * This function is called every robot packet, no matter the mode. Use this for items like
@@ -102,14 +104,30 @@ public class Robot extends TimedRobot {
     
     
 
- drive.arcadeDrive(btn_driveFB, btn_driveS);
+    drive.arcadeDrive(-btn_driveFB, btn_driveS);
+
+    if (btn_ElbowLOut){
+      cont_elbowL.set(-0.3);
+    }else if (!btn_ElbowLOut){
+      cont_elbowL.set(btn_EblowLIn);
+    }else if(!btn_ElbowLOut && btn_EblowLIn < 0.05){
+      cont_elbowL.set(0);
+    }
+
+    if (btn_ElbowROut){
+      cont_elbowR.set(-0.3);
+    }else if (!btn_ElbowROut){
+      cont_elbowR.set(btn_ElbowRIn);
+    }else if(!btn_ElbowROut && btn_ElbowRIn < 0.05){
+      cont_elbowR.set(0);
+    }
+
+    cont_shoulder.set(0.5 * btn_shoulders);
 
 
 
 
-
-
-
+    /*
     if (btn_shoulders > 0.05){
       previousShoulder = "Up";
     } else if (btn_shoulders < -0.05){
@@ -146,6 +164,7 @@ public class Robot extends TimedRobot {
       }
 
     }
+    */
     
   }
 
