@@ -140,7 +140,7 @@ public class Robot extends TimedRobot {
             cont_elbowL.set(btn_EblowLIn);
             cont_elbowR.set(btn_ElbowRIn);
           if (btn_shoulders > 0){btn_shoulders = 0.0;}
-          cont_shoulder.set(0.5 * btn_shoulders);
+          cont_shoulder.set(0.25 * btn_shoulders);
 
         }else if (previousShoulder.equals("Down")){
           if (sensor_elbowL.get()){
@@ -149,7 +149,7 @@ public class Robot extends TimedRobot {
             cont_elbowR.set(btn_ElbowRIn);
           }
           if (btn_shoulders < 0){btn_shoulders = 0.0;}
-          cont_shoulder.set(0.5 * btn_shoulders);
+          cont_shoulder.set(0.25 * btn_shoulders);
         }
       }
     } else {
@@ -157,10 +157,10 @@ public class Robot extends TimedRobot {
       cont_elbowL.set(btn_EblowLIn);
       cont_elbowR.set(btn_ElbowRIn);
       if (btn_ElbowLOut){
-        cont_elbowL.set(-0.3);
+        cont_elbowL.set(-0.1);
       }
       if (btn_ElbowROut){
-        cont_elbowR.set(-0.3);
+        cont_elbowR.set(-0.1);
       }
 
     }
