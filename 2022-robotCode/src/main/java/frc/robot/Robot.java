@@ -6,6 +6,7 @@ package frc.robot;
 
 import com.ctre.phoenix.motorcontrol.can.WPI_TalonSRX;
 import com.ctre.phoenix.motorcontrol.can.WPI_VictorSPX;
+import com.ctre.phoenix.music.Orchestra;
 
 import edu.wpi.first.wpilibj.DigitalInput;
 import edu.wpi.first.wpilibj.TimedRobot;
@@ -85,7 +86,9 @@ public class Robot extends TimedRobot {
   @Override
   public void teleopPeriodic() {
 
- 
+
+    Double shoulderPosition = cont_shoulder.getSelectedSensorPosition(0) * (16.0/60.0);
+
     //Buttons
     btn_EblowLIn = xbox_util.getRawAxis(2);
     btn_ElbowRIn = xbox_util.getRawAxis(3);
