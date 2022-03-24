@@ -124,48 +124,6 @@ public class Robot extends TimedRobot {
     }
 
     cont_shoulder.set(0.5 * btn_shoulders);
-
-
-
-
-    /*
-    if (btn_shoulders > 0.05){
-      previousShoulder = "Up";
-    } else if (btn_shoulders < -0.05){
-      previousShoulder = "Down";
-    }
-
-    if (sensor_elbowL.get() || sensor_elbowR.get()){
-      if (sensor_shoudler.get()){
-        if (previousShoulder.equals("Up")){
-            cont_elbowL.set(btn_EblowLIn);
-            cont_elbowR.set(btn_ElbowRIn);
-          if (btn_shoulders > 0){btn_shoulders = 0.0;}
-          cont_shoulder.set(0.5 * btn_shoulders);
-
-        }else if (previousShoulder.equals("Down")){
-          if (sensor_elbowL.get()){
-            cont_elbowL.set(btn_EblowLIn);
-          } else if (sensor_elbowR.get()){
-            cont_elbowR.set(btn_ElbowRIn);
-          }
-          if (btn_shoulders < 0){btn_shoulders = 0.0;}
-          cont_shoulder.set(0.5 * btn_shoulders);
-        }
-      }
-    } else {
-      cont_shoulder.set(0.5*btn_shoulders);
-      cont_elbowL.set(btn_EblowLIn);
-      cont_elbowR.set(btn_ElbowRIn);
-      if (btn_ElbowLOut){
-        cont_elbowL.set(-0.3);
-      }
-      if (btn_ElbowROut){
-        cont_elbowR.set(-0.3);
-      }
-
-    }
-    */
     
   }
 
