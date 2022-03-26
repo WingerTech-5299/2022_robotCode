@@ -42,11 +42,7 @@ public class Robot extends TimedRobot {
   int btn_winch;
 
   Double btn_shoulders;
-  Boolean btn_ElbowLOut;
-  Boolean btn_ElbowROut;
   Double btn_Elbows;
-  Double btn_EblowLIn;
-  Double btn_ElbowRIn;
 
   /**
    * This function is run when the robot is first started up and should be used for any
@@ -80,56 +76,21 @@ public class Robot extends TimedRobot {
   @Override
   public void teleopPeriodic() {
 
-    //double turboModifier = 0.5;
-
-    // if (btn_driveTurbo){
-    //   turboModifier = 1.0;
-    // } else {
-    //   turboModifier = 0.5;
-    // }
- 
+    Double angleShoulder = cont_shoulder.getSelectedSensorPosition(0) * (360 * 4096);
+    Double angleElbow = Math.max(cont_elbowR.getSelectedSensorPosition(0), cont_elbowL.getSelectedSensorPosition(0)) * (360 / 8192);
+    Double armExtentionLenght = (19.25 / Math.cos(angleShoulder) + (21.25 / Math.sin(angleElbow - (90- angleShoulder))));
     
     btn_driveFB = xbox_drive.getRawAxis(1);
     btn_driveSpin = xbox_drive.getRawAxis(4);
-
-    btn_EblowLIn = xbox_util.getRawAxis(2);
-    btn_ElbowRIn = xbox_util.getRawAxis(3);
-
-    btn_ElbowLOut = xbox_util.getRawButton(5);
-    btn_ElbowROut = xbox_util.getRawButton(6);
 
     btn_Elbows = xbox_util.getRawAxis(1);
 
     btn_shoulders = xbox_util.getRawAxis(1);
 
     cont_shoulder.set(-0.5*btn_shoulders);
-
-    if (btn_ElbowLOut) {
-      cont_elbowL.set(-0.3);
-    } else {
-      cont_elbowL.set(0);
-    }
-
-    if (btn_ElbowROut) {
-      cont_elbowR.set(-0.3);
-    } else {
-      cont_elbowR.set(0);
-    }
-
-    if (btn_ElbowRIn > 0.05){
-      cont_elbowR.set(btn_ElbowRIn);
-
-    }
-    if (btn_EblowLIn > 0.05){
-      cont_elbowL.set(btn_EblowLIn);
-    }
-
-    // if (btn_EblowLIn == 0 && btn_ElbowRIn == 0 && !btn_ElbowLOut && !btn_ElbowROut){
-      
-    //   cont_elbowL.set(btn_Elbows*0.5);
-    //   cont_elbowR.set(btn_Elbows*-0.5);
-
-    // }
+    
+    cont_elbowL.set(-btn_Elbows);
+    cont_elbowR.set(-btn_Elbows);
     
     drive.arcadeDrive(0.8*btn_driveFB, 0.8*btn_driveSpin);
 
