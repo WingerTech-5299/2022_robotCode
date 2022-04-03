@@ -4,6 +4,7 @@
 
 package frc.robot;
 
+import com.ctre.phoenix.motorcontrol.NeutralMode;
 import com.ctre.phoenix.motorcontrol.TalonSRXControlMode;
 import com.ctre.phoenix.motorcontrol.can.WPI_TalonSRX;
 import com.ctre.phoenix.motorcontrol.can.WPI_VictorSPX;
@@ -52,7 +53,15 @@ public class Robot extends TimedRobot {
    * initialization code.
    */
   @Override
-  public void robotInit() {}
+  public void robotInit() {
+    //Elbow lock
+    cont_elbowL.setNeutralMode(NeutralMode.Brake);
+    cont_elbowR.setNeutralMode(NeutralMode.Brake);
+    cont_shoulder.setNeutralMode(NeutralMode.Brake);
+
+    cont_driveL.setNeutralMode(NeutralMode.Brake);
+    cont_driveR.setNeutralMode(NeutralMode.Brake);
+  }
 
   /**
    * This function is called every robot packet, no matter the mode. Use this for items like
@@ -121,6 +130,14 @@ public class Robot extends TimedRobot {
   @Override
   public void teleopPeriodic() {
 
+    //Button mapping
+    btn_driveFB = xbox_drive.getRawAxis(1);
+    btn_driveSpin = xbox_drive.getRawAxis(4);
+
+    btn_Elbows = xbox_util.getRawAxis(1);
+    btn_shoulders = xbox_util.getRawAxis(1);
+    btn_encoderSetZero = xbox_util.getRawButton(0);
+
     //Calculations for arm restrictions
     Double angleCorrectionElbow = -160.0;
     Double angleCorrectionShoulder = 85.0;
@@ -136,14 +153,6 @@ public class Robot extends TimedRobot {
       cont_shoulder.setSelectedSensorPosition(0, 0, 100);
     }
 
-    //Button mapping
-    btn_driveFB = xbox_drive.getRawAxis(1);
-    btn_driveSpin = xbox_drive.getRawAxis(4);
-
-    btn_Elbows = xbox_util.getRawAxis(1);
-
-    btn_shoulders = xbox_util.getRawAxis(1);
-
     //Shoulder section control
     cont_shoulder.set(-0.5*btn_shoulders);
     
@@ -151,22 +160,13 @@ public class Robot extends TimedRobot {
     cont_elbowL.set(-btn_Elbows);
     cont_elbowR.set(-btn_Elbows);
 
-    //Arm restriction
-    if (btn_Elbows > -0.1 && btn_Elbows < 0.1){
-      cont_elbowL.set(TalonSRXControlMode.Velocity, 0);
-      cont_elbowR.set(TalonSRXControlMode.Velocity, 0);
-    }
-
     if (armExtentionLenght >= 31.5){
-      cont_elbowR.set(TalonSRXControlMode.Position, Math.asin((21.25 / (16 - (19.25 / Math.cos(angleShoulder)))) +  ((Math.PI / 2) - angleShoulder)));
-      cont_elbowL.set(TalonSRXControlMode.Position, (4096 / (Math.PI *2)) * Math.asin((21.25 / (16 - (19.25 / Math.cos(angleShoulder)))) +  ((Math.PI / 2) - angleShoulder)));
+      cont_elbowR.set(TalonSRXControlMode.Position, (4096 / (Math.PI * 2)) * Math.asin((21.25 / (16 - (19.25 / Math.cos(angleShoulder)))) +  ((Math.PI / 2) - angleShoulder)));
+      cont_elbowL.set(TalonSRXControlMode.Position, (4096 / (Math.PI * 2)) * Math.asin((21.25 / (16 - (19.25 / Math.cos(angleShoulder)))) +  ((Math.PI / 2) - angleShoulder)));
     }
     
     //drivetrain
     drive.arcadeDrive(0.8*btn_driveFB, 0.8*btn_driveSpin);
-
-
-
   }
 
   /** This function is called once when the robot is disabled. */
