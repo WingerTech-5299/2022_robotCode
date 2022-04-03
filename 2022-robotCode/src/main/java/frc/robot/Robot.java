@@ -80,6 +80,7 @@ public class Robot extends TimedRobot {
         cont_shoulder.setSelectedSensorPosition(0, 0, 100);
         cont_elbowL.setSelectedSensorPosition(0, 0, 100);
         cont_elbowR.setSelectedSensorPosition(0, 0, 100);
+        sensorResetComplete = true;
       }
     }
   }
