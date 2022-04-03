@@ -4,6 +4,7 @@
 
 package frc.robot;
 
+import com.ctre.phoenix.motorcontrol.TalonSRXControlMode;
 import com.ctre.phoenix.motorcontrol.can.WPI_TalonSRX;
 import com.ctre.phoenix.motorcontrol.can.WPI_VictorSPX;
 
@@ -26,7 +27,6 @@ public class Robot extends TimedRobot {
   WPI_TalonSRX cont_shoulder = new WPI_TalonSRX(13);
   WPI_TalonSRX cont_elbowL = new WPI_TalonSRX(14);
   WPI_TalonSRX cont_elbowR = new WPI_TalonSRX(15);
-  WPI_TalonSRX cont_winch = new WPI_TalonSRX(16);
 
   //drivetrain
   DifferentialDrive drive = new DifferentialDrive(cont_driveL, cont_driveR);
@@ -39,10 +39,13 @@ public class Robot extends TimedRobot {
   Double btn_driveFB;
   Double btn_driveSpin;
   Boolean btn_driveTurbo;
-  int btn_winch;
 
   Double btn_shoulders;
   Double btn_Elbows;
+
+  Boolean btn_encoderSetZero;
+
+  Boolean sensorResetComplete = false;
 
   /**
    * This function is run when the robot is first started up and should be used for any
@@ -59,14 +62,55 @@ public class Robot extends TimedRobot {
    * SmartDashboard integrated updating.
    */
   @Override
-  public void robotPeriodic() {}
+  public void robotPeriodic() {
+    
+    //Automatic encoder reset
+    if (!sensorResetComplete){
+      while (cont_elbowL.getSelectedSensorVelocity(0) > 5){
+        cont_elbowL.set(TalonSRXControlMode.PercentOutput, -0.3);
+      }
+      while (cont_elbowR.getSelectedSensorVelocity(0) > 5){
+        cont_elbowR.set(TalonSRXControlMode.PercentOutput, -0.3);
+      }
+      while (cont_shoulder.getSelectedSensorVelocity(0) > 5){
+        cont_shoulder.set(TalonSRXControlMode.PercentOutput, 0.3);
+      }
+
+      if (cont_shoulder.getSelectedSensorVelocity(0) < 5 && cont_elbowL.getSelectedSensorVelocity(0) < 0 && cont_elbowR.getSelectedSensorVelocity(0) < 5){
+        cont_shoulder.setSelectedSensorPosition(0, 0, 100);
+        cont_elbowL.setSelectedSensorPosition(0, 0, 100);
+        cont_elbowR.setSelectedSensorPosition(0, 0, 100);
+      }
+    }
+  }
 
   @Override
   public void autonomousInit() {}
 
   /** This function is called periodically during autonomous. */
   @Override
-  public void autonomousPeriodic() {}
+  public void autonomousPeriodic() {
+    
+    //Calculations for arm restrictions
+    Double angleCorrectionElbow = -160.0;
+    Double angleCorrectionShoulder = 85.0;
+
+    Double angleShoulder = cont_shoulder.getSelectedSensorPosition(0) * ((2 * Math.PI) / 4096) + angleCorrectionShoulder;
+    Double angleElbow = Math.max(cont_elbowR.getSelectedSensorPosition(0), cont_elbowL.getSelectedSensorPosition(0)) * ((Math.PI * 2) / 8192) + angleCorrectionElbow;
+    Double armExtentionLenght = (19.25 / Math.cos(angleShoulder) + (21.25 / Math.sin(angleElbow - ((Math.PI / 2) - angleShoulder))));
+    
+    //Arm restriction
+    if (btn_Elbows > -0.1 && btn_Elbows < 0.1){
+      cont_elbowL.set(TalonSRXControlMode.Velocity, 0);
+      cont_elbowR.set(TalonSRXControlMode.Velocity, 0);
+    }
+
+    if (armExtentionLenght >= 31.5){
+      cont_elbowR.set(TalonSRXControlMode.Position, Math.asin((21.25 / (16 - (19.25 / Math.cos(angleShoulder)))) +  ((Math.PI / 2) - angleShoulder)));
+      cont_elbowL.set(TalonSRXControlMode.Position, (4096 / (Math.PI *2)) * Math.asin((21.25 / (16 - (19.25 / Math.cos(angleShoulder)))) +  ((Math.PI / 2) - angleShoulder)));
+    }
+
+  }
 
   /** This function is called once when teleop is enabled. */
   @Override
@@ -76,10 +120,22 @@ public class Robot extends TimedRobot {
   @Override
   public void teleopPeriodic() {
 
-    Double angleShoulder = cont_shoulder.getSelectedSensorPosition(0) * (360 * 4096);
-    Double angleElbow = Math.max(cont_elbowR.getSelectedSensorPosition(0), cont_elbowL.getSelectedSensorPosition(0)) * (360 / 8192);
-    Double armExtentionLenght = (19.25 / Math.cos(angleShoulder) + (21.25 / Math.sin(angleElbow - (90- angleShoulder))));
-    
+    //Calculations for arm restrictions
+    Double angleCorrectionElbow = -160.0;
+    Double angleCorrectionShoulder = 85.0;
+
+    Double angleShoulder = cont_shoulder.getSelectedSensorPosition(0) * ((2 * Math.PI) / 4096) + angleCorrectionShoulder;
+    Double angleElbow = Math.max(cont_elbowR.getSelectedSensorPosition(0), cont_elbowL.getSelectedSensorPosition(0)) * ((Math.PI * 2) / 8192) + angleCorrectionElbow;
+    Double armExtentionLenght = (19.25 / Math.cos(angleShoulder) + (21.25 / Math.sin(angleElbow - ((Math.PI / 2) - angleShoulder))));
+
+    //Encoder Reset
+    if (btn_encoderSetZero){
+      cont_elbowL.setSelectedSensorPosition(0, 0, 100);
+      cont_elbowR.setSelectedSensorPosition(0, 0, 100);
+      cont_shoulder.setSelectedSensorPosition(0, 0, 100);
+    }
+
+    //Button mapping
     btn_driveFB = xbox_drive.getRawAxis(1);
     btn_driveSpin = xbox_drive.getRawAxis(4);
 
@@ -87,11 +143,25 @@ public class Robot extends TimedRobot {
 
     btn_shoulders = xbox_util.getRawAxis(1);
 
+    //Shoulder section control
     cont_shoulder.set(-0.5*btn_shoulders);
     
+    //Elbow section control
     cont_elbowL.set(-btn_Elbows);
     cont_elbowR.set(-btn_Elbows);
+
+    //Arm restriction
+    if (btn_Elbows > -0.1 && btn_Elbows < 0.1){
+      cont_elbowL.set(TalonSRXControlMode.Velocity, 0);
+      cont_elbowR.set(TalonSRXControlMode.Velocity, 0);
+    }
+
+    if (armExtentionLenght >= 31.5){
+      cont_elbowR.set(TalonSRXControlMode.Position, Math.asin((21.25 / (16 - (19.25 / Math.cos(angleShoulder)))) +  ((Math.PI / 2) - angleShoulder)));
+      cont_elbowL.set(TalonSRXControlMode.Position, (4096 / (Math.PI *2)) * Math.asin((21.25 / (16 - (19.25 / Math.cos(angleShoulder)))) +  ((Math.PI / 2) - angleShoulder)));
+    }
     
+    //drivetrain
     drive.arcadeDrive(0.8*btn_driveFB, 0.8*btn_driveSpin);
 
 
