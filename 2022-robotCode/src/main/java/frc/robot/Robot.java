@@ -61,6 +61,7 @@ public class Robot extends TimedRobot {
 
     cont_driveL.setNeutralMode(NeutralMode.Brake);
     cont_driveR.setNeutralMode(NeutralMode.Brake);
+    cont_driveR.setInverted(true);
   }
 
   /**
