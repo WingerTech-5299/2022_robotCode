@@ -10,6 +10,7 @@ import com.ctre.phoenix.motorcontrol.can.WPI_TalonSRX;
 import com.ctre.phoenix.motorcontrol.can.WPI_VictorSPX;
 
 import edu.wpi.first.wpilibj.TimedRobot;
+import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj.XboxController;
 import edu.wpi.first.wpilibj.drive.DifferentialDrive;
 
@@ -46,8 +47,11 @@ public class Robot extends TimedRobot {
 
   Boolean btn_encoderSetZero;
 
+  //Auto timer
+  Timer timer = new Timer();
+
   //Misc varaiables
-  Boolean sensorResetComplete = false;
+  Boolean sensorResetComplete;
 
   /**
    * This function is run when the robot is first started up and should be used for any
@@ -55,6 +59,9 @@ public class Robot extends TimedRobot {
    */
   @Override
   public void robotInit() {
+
+    sensorResetComplete = false;
+    
     //Elbow lock
     cont_elbowL.setNeutralMode(NeutralMode.Brake);
     cont_elbowR.setNeutralMode(NeutralMode.Brake);
@@ -181,9 +188,19 @@ public class Robot extends TimedRobot {
 
   /** This function is called once when test mode is enabled. */
   @Override
-  public void testInit() {}
+  public void testInit() {
+    timer.reset();
+    timer.start();
+  }
 
   /** This function is called periodically during test mode. */
   @Override
-  public void testPeriodic() {}
+  public void testPeriodic() {
+    cont_shoulder.set(TalonSRXControlMode.Velocity, 300);
+
+    if (timer.get() > 2){
+      cont_shoulder.stopMotor();
+    }
+
+  }
 }
