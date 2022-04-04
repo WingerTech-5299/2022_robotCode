@@ -114,7 +114,7 @@ public class Robot extends TimedRobot {
     Double angleCorrectionElbow = -160.0;
     Double angleCorrectionShoulder = 85.0;
 
-    Double angleShoulder = cont_shoulder.getSelectedSensorPosition(0) * ((2 * Math.PI) / 4096) + angleCorrectionShoulder;
+    Double angleShoulder = (16 / 60) * cont_shoulder.getSelectedSensorPosition(0) * ((2 * Math.PI) / 4096) + angleCorrectionShoulder;
     Double angleElbow = Math.max(cont_elbowR.getSelectedSensorPosition(0), cont_elbowL.getSelectedSensorPosition(0)) * ((Math.PI * 2) / 8192) + angleCorrectionElbow;
     Double armExtentionLenght = (19.25 / Math.cos(angleShoulder) + (21.25 / Math.sin(angleElbow - ((Math.PI / 2) - angleShoulder))));
     
