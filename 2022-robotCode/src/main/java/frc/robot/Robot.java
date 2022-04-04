@@ -46,6 +46,7 @@ public class Robot extends TimedRobot {
 
   Boolean btn_encoderSetZero;
 
+  //Misc varaiables
   Boolean sensorResetComplete = false;
 
   /**
