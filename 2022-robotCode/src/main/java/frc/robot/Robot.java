@@ -6,6 +6,7 @@ package frc.robot;
 
 import com.ctre.phoenix.motorcontrol.NeutralMode;
 import com.ctre.phoenix.motorcontrol.TalonSRXControlMode;
+import com.ctre.phoenix.motorcontrol.TalonSRXFeedbackDevice;
 import com.ctre.phoenix.motorcontrol.can.WPI_TalonSRX;
 import com.ctre.phoenix.motorcontrol.can.WPI_VictorSPX;
 
@@ -46,12 +47,14 @@ public class Robot extends TimedRobot {
   Double btn_Elbows;
 
   Boolean btn_encoderSetZero;
+  Boolean btn_climbMode;
 
   //Auto timer
   Timer timer = new Timer();
 
   //Misc varaiables
   Boolean sensorResetComplete;
+  Boolean climbMode;
 
   /**
    * This function is run when the robot is first started up and should be used for any
@@ -60,7 +63,11 @@ public class Robot extends TimedRobot {
   @Override
   public void robotInit() {
 
+    climbMode = false;
     sensorResetComplete = false;
+
+    cont_shoulder.configSelectedFeedbackSensor(TalonSRXFeedbackDevice.CTRE_MagEncoder_Relative, 0, 100);
+    cont_elbowL.configSelectedFeedbackSensor(TalonSRXFeedbackDevice.CTRE_MagEncoder_Relative, 0, 100);
     
     //Elbow lock
     cont_elbowL.setNeutralMode(NeutralMode.Brake);
@@ -112,13 +119,13 @@ public class Robot extends TimedRobot {
     
     //Calculations for arm restrictions
     Double angleCorrectionElbow = -160.0;
-    Double angleCorrectionShoulder = 85.0;
+    Double angleCorrectionShoulder = 1.08;
 
-    Double angleShoulder = (16 / 60) * cont_shoulder.getSelectedSensorPosition(0) * ((2 * Math.PI) / 4096) + angleCorrectionShoulder;
+    Double angleShoulder = (22 / 62) * cont_shoulder.getSelectedSensorPosition(0) * ((2 * Math.PI) / 4096) + angleCorrectionShoulder;
     Double angleElbow = Math.max(cont_elbowR.getSelectedSensorPosition(0), cont_elbowL.getSelectedSensorPosition(0)) * ((Math.PI * 2) / 8192) + angleCorrectionElbow;
     Double armExtentionLenght = (19.25 / Math.cos(angleShoulder) + (21.25 / Math.sin(angleElbow - ((Math.PI / 2) - angleShoulder))));
     
-    //Arm restriction
+    //Arm restriction horisontal
     if (btn_Elbows > -0.1 && btn_Elbows < 0.1){
       cont_elbowL.set(TalonSRXControlMode.Velocity, 0);
       cont_elbowR.set(TalonSRXControlMode.Velocity, 0);
@@ -143,7 +150,7 @@ public class Robot extends TimedRobot {
     btn_driveFB = xbox_drive.getRawAxis(1);
     btn_driveSpin = xbox_drive.getRawAxis(4);
 
-    btn_Elbows = xbox_util.getRawAxis(1);
+    btn_Elbows = xbox_util.getRawAxis(5);
     btn_shoulders = xbox_util.getRawAxis(1);
     btn_encoderSetZero = xbox_util.getRawButton(0);
 
@@ -155,6 +162,8 @@ public class Robot extends TimedRobot {
     Double angleElbow = Math.max(cont_elbowR.getSelectedSensorPosition(0), cont_elbowL.getSelectedSensorPosition(0)) * ((Math.PI * 2) / 8192) + angleCorrectionElbow;
     Double armExtentionLenght = (19.25 / Math.cos(angleShoulder) + (21.25 / Math.sin(angleElbow - ((Math.PI / 2) - angleShoulder))));
 
+    System.out.print(armExtentionLenght - 16);
+
     //Encoder Reset
     if (btn_encoderSetZero){
       cont_elbowL.setSelectedSensorPosition(0, 0, 100);
@@ -163,16 +172,18 @@ public class Robot extends TimedRobot {
     }
 
     //Shoulder section control
-    cont_shoulder.set(-0.5*btn_shoulders);
+    cont_shoulder.set(btn_shoulders);
     
     //Elbow section control
     cont_elbowL.set(-btn_Elbows);
     cont_elbowR.set(-btn_Elbows);
 
+    /*
     if (armExtentionLenght >= 31.5){
       cont_elbowR.set(TalonSRXControlMode.Position, (4096 / (Math.PI * 2)) * Math.asin((21.25 / (16 - (19.25 / Math.cos(angleShoulder)))) +  ((Math.PI / 2) - angleShoulder)));
       cont_elbowL.set(TalonSRXControlMode.Position, (4096 / (Math.PI * 2)) * Math.asin((21.25 / (16 - (19.25 / Math.cos(angleShoulder)))) +  ((Math.PI / 2) - angleShoulder)));
     }
+    */
     
     //drivetrain
     drive.arcadeDrive(0.8*btn_driveFB, 0.8*btn_driveSpin);
