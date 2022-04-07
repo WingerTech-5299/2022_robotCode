@@ -7,7 +7,6 @@ package frc.robot;
 import com.ctre.phoenix.motorcontrol.InvertType;
 import com.ctre.phoenix.motorcontrol.NeutralMode;
 import com.ctre.phoenix.motorcontrol.TalonSRXControlMode;
-import com.ctre.phoenix.motorcontrol.TalonSRXFeedbackDevice;
 import com.ctre.phoenix.motorcontrol.can.WPI_TalonSRX;
 import com.ctre.phoenix.motorcontrol.can.WPI_VictorSPX;
 
@@ -112,7 +111,7 @@ public class Robot extends TimedRobot {
 
   @Override
   public void autonomousInit() {}
-
+ 
   /** This function is called periodically during autonomous. */
   @Override
   public void autonomousPeriodic() {}
@@ -137,13 +136,15 @@ public class Robot extends TimedRobot {
     btn_encoderSetZero = xbox_util.getRawButton(1);
 
     //Calculations for arm restrictions
+    Double maxExtentionDistance = 30.0;
+
     Double shoulderEncoderPosition = cont_shoulder.getSelectedSensorPosition(0);
     Double elbowEncoderPosition = cont_elbowL.getSelectedSensorPosition(0);
     Double correctedShoulderEncoderPostion = shoulderEncoderPosition - 0;
     Double correctedElbowEncoderPosition = elbowEncoderPosition - 0;
     
-    Double shoulderLength = 0.0;
-    Double elbowLength = 0.0;
+    Double shoulderLength = 13.5;
+    Double elbowLength = 20.75;
 
     Double angleShoulder = (22 / 60) * correctedShoulderEncoderPostion * (2 * Math.PI);
     Double angleElbow = (correctedElbowEncoderPosition * (2 * Math.PI)) - ((Math.PI / 2) - angleShoulder);
@@ -152,9 +153,11 @@ public class Robot extends TimedRobot {
 
     Double totalReach = distanceToElbow + distanceToHook;
 
-    //Arm restrictions
-    if (totalReach > 31){
+    Double elbowCorrectionAngle = Math.asin(-(((shoulderLength * Math.cos(angleShoulder)) - maxExtentionDistance) / elbowLength) + angleShoulder +(Math.PI / 2));
 
+    //Arm restrictions
+    if (totalReach > maxExtentionDistance){
+      //cont_elbowL.set(TalonSRXControlMode.Position, elbowCorrectionAngle * (4096 / (2 * Math.PI)));
     }
 
     //Shoulder section control
@@ -165,9 +168,12 @@ public class Robot extends TimedRobot {
       cont_elbowL.set(-btn_Elbows);
     }
     cont_elbowR.follow(cont_elbowL);
+
+    cont_elbowL.set(TalonSRXControlMode.PercentOutput, btn_Elbows);
+    cont_shoulder.set(TalonSRXControlMode.PercentOutput, -btn_shoulders);
     
     //drivetrain
-    drive.arcadeDrive(-0.8*btn_driveFB, 0.8*btn_driveSpin);
+    drive.arcadeDrive(-0.8*btn_driveFB, btn_driveSpin);
   }
 
   /** This function is called once when the robot is disabled. */
