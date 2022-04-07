@@ -110,11 +110,26 @@ public class Robot extends TimedRobot {
   }
 
   @Override
-  public void autonomousInit() {}
+  public void autonomousInit() {
+    cont_elbowR.follow(cont_elbowL);
+    cont_elbowR.setInverted(InvertType.OpposeMaster);
+    timer.reset();
+    timer.start();
+  }
  
   /** This function is called periodically during autonomous. */
   @Override
-  public void autonomousPeriodic() {}
+  public void autonomousPeriodic() {
+    if (timer.get() < 1){
+      drive.arcadeDrive(-0.8, 0);
+    } else if (timer.get() > 1 && timer.get() < 1.5){
+      drive.stopMotor();
+    } else if (timer.get() > 1.5 && timer.get() < 2.5){
+      drive.arcadeDrive(0.8, 0);
+    } else if (timer.get() > 2.5 && timer.get() < 3){
+      drive.stopMotor();
+    }
+  }
 
   /** This function is called once when teleop is enabled. */
   @Override
@@ -146,7 +161,7 @@ public class Robot extends TimedRobot {
     Double shoulderLength = 13.5;
     Double elbowLength = 20.75;
 
-    Double angleShoulder = (22 / 60) * correctedShoulderEncoderPostion * (2 * Math.PI);
+    Double angleShoulder = (22.0 / 60) * correctedShoulderEncoderPostion * (2 * Math.PI);
     Double angleElbow = (correctedElbowEncoderPosition * (2 * Math.PI)) - ((Math.PI / 2) - angleShoulder);
     Double distanceToElbow = shoulderLength * Math.cos(angleShoulder);
     Double distanceToHook = elbowLength * Math.sin(angleElbow);
@@ -157,7 +172,7 @@ public class Robot extends TimedRobot {
 
     //Arm restrictions
     if (totalReach > maxExtentionDistance){
-      //cont_elbowL.set(TalonSRXControlMode.Position, elbowCorrectionAngle * (4096 / (2 * Math.PI)));
+      cont_elbowL.set(TalonSRXControlMode.Position, elbowCorrectionAngle * (4096 / (2 * Math.PI)));
     }
 
     //Shoulder section control
