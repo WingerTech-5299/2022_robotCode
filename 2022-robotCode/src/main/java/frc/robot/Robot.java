@@ -111,11 +111,26 @@ public class Robot extends TimedRobot {
   }
 
   @Override
-  public void autonomousInit() {}
+  public void autonomousInit() {
+    cont_elbowR.follow(cont_elbowL);
+    cont_elbowR.setInverted(InvertType.OpposeMaster);
+    timer.reset();
+    timer.start();
+  }
  
   /** This function is called periodically during autonomous. */
   @Override
-  public void autonomousPeriodic() {}
+  public void autonomousPeriodic() {
+    if (timer.get() < 1){
+      drive.arcadeDrive(-0.8, 0);
+    } else if (timer.get() > 1 && timer.get() < 1.5){
+      drive.stopMotor();
+    } else if (timer.get() > 1.5 && timer.get() < 2.5){
+      drive.arcadeDrive(0.8, 0);
+    } else if (timer.get() > 2.5 && timer.get() < 3){
+      drive.stopMotor();
+    }
+  }
 
   /** This function is called once when teleop is enabled. */
   @Override
