@@ -14,6 +14,7 @@ import edu.wpi.first.wpilibj.TimedRobot;
 import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj.XboxController;
 import edu.wpi.first.wpilibj.drive.DifferentialDrive;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 
 
 /**
@@ -28,8 +29,8 @@ public class Robot extends TimedRobot {
   WPI_VictorSPX cont_driveL = new WPI_VictorSPX(11);
   WPI_VictorSPX cont_driveR = new WPI_VictorSPX(12);
   WPI_TalonSRX cont_shoulder = new WPI_TalonSRX(13);
-  WPI_TalonSRX cont_elbowL = new WPI_TalonSRX(14);
-  WPI_TalonSRX cont_elbowR = new WPI_TalonSRX(15);
+  WPI_TalonSRX cont_elbowL = new WPI_TalonSRX(15);
+  WPI_TalonSRX cont_elbowR = new WPI_TalonSRX(14);
 
   //drivetrain
   DifferentialDrive drive = new DifferentialDrive(cont_driveL, cont_driveR);
@@ -138,26 +139,33 @@ public class Robot extends TimedRobot {
     //Calculations for arm restrictions
     Double maxExtentionDistance = 30.0;
 
-    Double shoulderEncoderPosition = cont_shoulder.getSelectedSensorPosition(0);
-    Double elbowEncoderPosition = cont_elbowL.getSelectedSensorPosition(0);
-    Double correctedShoulderEncoderPostion = shoulderEncoderPosition - 0;
-    Double correctedElbowEncoderPosition = elbowEncoderPosition - 0;
+    Double shoulderEncoderPosition = cont_shoulder.getSelectedSensorPosition(1);
+    Double elbowEncoderPosition = cont_elbowL.getSelectedSensorPosition(1);
+    Double correctedShoulderEncoderPostion = shoulderEncoderPosition - 3866;
+    Double correctedElbowEncoderPosition = elbowEncoderPosition - 1612;
+
+    SmartDashboard.putNumber("ShoulderAngleRaw", correctedShoulderEncoderPostion);
+    SmartDashboard.putNumber("Elbow Angle Raw", correctedElbowEncoderPosition);
     
     Double shoulderLength = 13.5;
     Double elbowLength = 20.75;
 
     Double angleShoulder = (22 / 60) * correctedShoulderEncoderPostion * (2 * Math.PI);
-    Double angleElbow = (correctedElbowEncoderPosition * (2 * Math.PI)) - ((Math.PI / 2) - angleShoulder);
+    Double angleElbow = (correctedElbowEncoderPosition * ((2 * Math.PI) / 4096)) - ((Math.PI / 2) - angleShoulder);
+
+    SmartDashboard.putNumber("ShoulderAngle", angleShoulder);
+    SmartDashboard.putNumber("Elbow Angle", angleElbow);
     Double distanceToElbow = shoulderLength * Math.cos(angleShoulder);
     Double distanceToHook = elbowLength * Math.sin(angleElbow);
 
     Double totalReach = distanceToElbow + distanceToHook;
 
-    Double elbowCorrectionAngle = Math.asin(-(((shoulderLength * Math.cos(angleShoulder)) - maxExtentionDistance) / elbowLength) + angleShoulder +(Math.PI / 2));
+    Double elbowCorrectionAngle = Math.asin(-(((shoulderLength * Math.cos(angleShoulder)) - maxExtentionDistance) / elbowLength) + angleShoulder + (Math.PI / 2));
 
     //Arm restrictions
+    SmartDashboard.putNumber("reach dist", totalReach);
     if (totalReach > maxExtentionDistance){
-      //cont_elbowL.set(TalonSRXControlMode.Position, elbowCorrectionAngle * (4096 / (2 * Math.PI)));
+      //cont_elbowL.set(TalonSRXControlMode.Position, elbowCorrectionAngle);
     }
 
     //Shoulder section control
@@ -165,7 +173,7 @@ public class Robot extends TimedRobot {
     
     //Elbow section control
     if (totalReach < 31.5){
-      cont_elbowL.set(-btn_Elbows);
+      cont_elbowL.set(btn_Elbows);
     }
     cont_elbowR.follow(cont_elbowL);
 
