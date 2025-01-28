@@ -165,7 +165,7 @@ public class Robot extends TimedRobot {
     Double shoulderLength = 13.5;
     Double elbowLength = 20.75;
 
-    Double angleShoulder = (22 / 60) * correctedShoulderEncoderPostion * (2 * Math.PI);
+    Double angleShoulder = (22.0 / 60) * correctedShoulderEncoderPostion * (2 * Math.PI);
     Double angleElbow = (correctedElbowEncoderPosition * ((2 * Math.PI) / 4096)) - ((Math.PI / 2) - angleShoulder);
 
     SmartDashboard.putNumber("ShoulderAngle", angleShoulder);
@@ -222,6 +222,5 @@ public class Robot extends TimedRobot {
     if (timer.get() > 2){
       cont_shoulder.stopMotor();
     }
-
   }
 }
